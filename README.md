@@ -47,12 +47,12 @@ You can host this project for free using platforms like:
 * Vercel
 * Netlify
 * Cloudflare Pages
-
-🙏 Credits
-This project relies entirely on the excellent infrastructure provided by Mail.tm.
-Powered by: Mail.tm
-API Used: https://api.mail.tm
-Documentation: Read the API Docs Here
+* 
+### 🙏 Credits
+This project relies entirely on the excellent infrastructure provided by Mail.tm
+* Powered by: Mail.tm
+* API Used: https://api.mail.tm
+* Documentation: Read the API Docs Here
 
 ---
 
