@@ -50,6 +50,7 @@ You can host this project for free using platforms like:
 
 
 ### API Used: https://api.mail.tm
+Read Doc here: https://docs.mail.tm/
 ---
 
 ## License
