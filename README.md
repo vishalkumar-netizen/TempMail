@@ -6,6 +6,10 @@
 TempMail is a lightweight, single-file (`index.html`) web application that generates disposable email addresses. It is designed to provide users with a quick, secure, and hassle-free way to receive emails temporarily, keeping their primary personal inboxes clean and secure.
 
 ---
+🚀 Live Demo
+Use the application directly in your browser:
+
+👉 https://vishalkumar-netizen.github.io/TempMail/
 
 ## About
 A temporary email address is a disposable email that you can use to navigate the web safely. TempMail is built to help you:
