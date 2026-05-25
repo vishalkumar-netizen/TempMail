@@ -47,10 +47,10 @@ You can host this project for free using platforms like:
 * Vercel
 * Netlify
 * Cloudflare Pages
-
-
 ### API Used: https://api.mail.tm
 Read Doc here: https://docs.mail.tm/
+
+
 ---
 
 ## License
