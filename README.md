@@ -48,6 +48,8 @@ You can host this project for free using platforms like:
 * Netlify
 * Cloudflare Pages
 
+
+### API Used: https://api.mail.tm
 ---
 
 ## License
