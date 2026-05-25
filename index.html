@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TempMail - Premium Temporary Email</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8fafc; /* Very light slate */
+            font-family: 'Inter', sans-serif;
+            color: #334155;
+        }
+        .premium-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
+            border-radius: 1.25rem;
+        }
+        .loader {
+            border: 2px solid #f1f5f9;
+            border-top: 2px solid #2563eb; /* Royal Blue */
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar for Inbox */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center shadow-md shadow-blue-600/20">
+                    <i class="fas fa-bolt text-white text-lg"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-tight text-slate-800">TempMail</span>
+            </div>
+            <button onclick="createNewAccount()" class="text-sm font-medium text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 border border-slate-200 px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+                <i class="fas fa-redo"></i> 
+                <span class="hidden sm:inline">Generate New</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-6xl mx-auto px-6 py-10 flex flex-col gap-10">
+        
+        <!-- Top Section: Address & Inbox -->
+        <div class="grid lg:grid-cols-12 gap-8">
+            
+            <!-- Address Display (Left Col) -->
+            <section class="lg:col-span-5 flex flex-col gap-6">
+                <div class="premium-card p-8 relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
+                    
+                    <div class="flex justify-between items-center mb-6 pt-2">
+                        <h1 class="text-xs font-bold text-slate-500 uppercase tracking-[0.15em]">Your Temporary Address</h1>
+                        <div id="status-badge" class="inline-flex items-center gap-2 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full uppercase tracking-wider">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            Active
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        <div class="relative">
+                            <input type="text" id="email-display" readonly 
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-lg md:text-xl rounded-xl p-4 pl-5 pr-12 font-mono focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner" 
+                                value="Initializing connection...">
+                        </div>
+                        <button onclick="copyToClipboard()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-8 py-4 transition-all flex items-center justify-center gap-3 shadow-md shadow-blue-600/20 hover:shadow-blue-600/30 hover:-translate-y-0.5">
+                            <i class="far fa-copy text-lg"></i> Copy Address
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats / Info Widget -->
+                <div class="premium-card p-6 flex items-center justify-between border-l-4 border-l-slate-300">
+                    <div>
+                        <p class="text-slate-500 text-xs uppercase tracking-wider font-semibold mb-1">Session Privacy</p>
+                        <p class="text-slate-800 font-semibold flex items-center gap-2"><i class="fas fa-shield-alt text-blue-500"></i> End-to-End Secure</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-slate-500 text-xs uppercase tracking-wider font-semibold mb-1">Auto-Destruct</p>
+                        <p class="text-slate-800 font-semibold">On Session Close</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inbox (Right Col) -->
+            <section class="lg:col-span-7 premium-card flex flex-col overflow-hidden h-[500px]">
+                <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h2 class="font-semibold text-slate-800 flex items-center gap-3 text-lg">
+                        <i class="fas fa-inbox text-blue-600"></i> Secure Inbox
+                    </h2>
+                    <div class="flex items-center gap-4 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
+                        <span class="text-xs font-medium text-slate-500">Refresh in: <span id="timer" class="text-blue-600 font-mono font-bold w-4 inline-block text-center">10</span>s</span>
+                        <div class="w-px h-4 bg-slate-200"></div>
+                        <button onclick="fetchMessages()" class="text-slate-400 hover:text-blue-600 transition-colors" title="Refresh Now">
+                            <i id="refresh-icon" class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-grow relative overflow-y-auto bg-white">
+                    <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 border border-slate-100">
+                            <i class="fas fa-envelope-open-text text-slate-300 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-slate-700 mb-2">Awaiting Incoming Mail</h3>
+                        <p class="text-slate-500 text-sm max-w-xs">Emails sent to your temporary address will automatically appear here.</p>
+                    </div>
+                    <div id="message-list" class="hidden flex-col"></div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Documentation Sections -->
+        <div class="grid md:grid-cols-2 gap-8 mt-2">
+            
+            <!-- How to Use -->
+            <section class="premium-card p-8">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3 border-b border-slate-100 pb-4">
+                    <div class="w-8 h-8 rounded bg-blue-50 flex items-center justify-center text-blue-600"><i class="fas fa-book-open"></i></div>
+                    How It Works
+                </h3>
+                <ul class="space-y-6 relative before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+                    <li class="relative flex gap-4">
+                        <div class="relative z-10 w-8 h-8 rounded-full bg-white border-2 border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm shadow-sm">1</div>
+                        <div class="flex-1 pt-1">
+                            <h4 class="text-slate-800 font-semibold mb-1">Copy Your Address</h4>
+                            <p class="text-slate-500 text-sm leading-relaxed">A secure, disposable email address is instantly generated for you at the top of the page. Click copy to save it.</p>
+                        </div>
+                    </li>
+                    <li class="relative flex gap-4">
+                        <div class="relative z-10 w-8 h-8 rounded-full bg-white border-2 border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm shadow-sm">2</div>
+                        <div class="flex-1 pt-1">
+                            <h4 class="text-slate-800 font-semibold mb-1">Use Anywhere</h4>
+                            <p class="text-slate-500 text-sm leading-relaxed">Paste this address into forms, registrations, or anywhere requiring an email where you don't want to use your real one.</p>
+                        </div>
+                    </li>
+                    <li class="relative flex gap-4">
+                        <div class="relative z-10 w-8 h-8 rounded-full bg-white border-2 border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm shadow-sm">3</div>
+                        <div class="flex-1 pt-1">
+                            <h4 class="text-slate-800 font-semibold mb-1">Receive Instantly</h4>
+                            <p class="text-slate-500 text-sm leading-relaxed">The inbox checks for new messages automatically every 10 seconds. Click on any message to view its contents.</p>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Use Cases -->
+            <section class="premium-card p-8">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3 border-b border-slate-100 pb-4">
+                    <div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-600"><i class="fas fa-layer-group"></i></div>
+                    Primary Use Cases
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 border border-slate-100 p-5 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300">
+                        <i class="fas fa-shield-virus text-xl text-blue-600 mb-3 block"></i>
+                        <h4 class="text-slate-800 font-semibold mb-2">Avoid Spam</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">Keep your primary inbox clean from marketing newsletters and promotional spam.</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-5 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300">
+                        <i class="fas fa-gift text-xl text-blue-600 mb-3 block"></i>
+                        <h4 class="text-slate-800 font-semibold mb-2">Free Trials</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">Sign up for software trials or one-time downloads without committing your real identity.</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-5 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300">
+                        <i class="fas fa-code text-xl text-blue-600 mb-3 block"></i>
+                        <h4 class="text-slate-800 font-semibold mb-2">Developer Testing</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">Perfect for testing email dispatch systems, account creations, and password resets.</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-5 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300">
+                        <i class="fas fa-user-secret text-xl text-blue-600 mb-3 block"></i>
+                        <h4 class="text-slate-800 font-semibold mb-2">Protect Privacy</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">Prevent data brokers from linking your online activities to your personal email address.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+        
+        <footer class="text-center text-slate-400 text-sm mt-4 pb-8">
+            <p>&copy; 2024 TempMail Premium. All rights reserved. Emails are temporary and will be deleted permanently.</p>
+        </footer>
+    </main>
+
+    <!-- Modal (Email Viewer) -->
+    <div id="mail-modal" class="fixed inset-0 z-50 bg-slate-900/60 hidden flex items-center justify-center p-4 md:p-8 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200 overflow-hidden">
+            <div class="p-6 md:p-8 border-b border-slate-100 flex justify-between items-start bg-slate-50">
+                <div class="pr-8">
+                    <h3 id="modal-subject" class="text-xl md:text-2xl font-bold text-slate-800 mb-3 leading-tight"></h3>
+                    <div class="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-md border border-slate-200 text-sm shadow-sm">
+                        <span class="text-slate-500 font-medium">From:</span>
+                        <span class="font-semibold text-blue-600" id="modal-from"></span>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-white hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors border border-slate-200 shadow-sm flex-shrink-0">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex-grow overflow-auto p-0 bg-white" id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-medium shadow-xl opacity-0 translate-y-4 transition-all duration-300 z-[100] flex items-center gap-2"></div>
+
+    <script>
+        const API_URL = 'https://api.mail.tm';
+        let account = null;
+        let messages = [];
+        let timer = 10;
+        let checkInterval;
+
+        // --- Helper: Exponential Backoff Fetch ---
+        async function fetchWithRetry(url, options = {}, retries = 5, backoff = 1000) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    if (response.status === 429 && retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, backoff));
+                        return fetchWithRetry(url, options, retries - 1, backoff * 2);
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response;
+            } catch (err) {
+                if (retries > 0) {
+                    await new Promise(resolve => setTimeout(resolve, backoff));
+                    return fetchWithRetry(url, options, retries - 1, backoff * 2);
+                }
+                throw err;
+            }
+        }
+
+        // --- Core Actions ---
+        async function createNewAccount() {
+            try {
+                document.getElementById('email-display').value = "Acquiring secure domain...";
+                const domRes = await fetchWithRetry(`${API_URL}/domains`);
+                const domains = await domRes.json();
+                const domain = domains['hydra:member'][0].domain;
+
+                const username = Math.random().toString(36).substring(2, 12);
+                const password = Math.random().toString(36).substring(2, 15);
+                const email = `${username}@${domain}`;
+
+                const accRes = await fetchWithRetry(`${API_URL}/accounts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: email, password })
+                });
+
+                const tokenRes = await fetchWithRetry(`${API_URL}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: email, password })
+                });
+
+                const tokenData = await tokenRes.json();
+                account = { email, password, token: tokenData.token };
+                
+                document.getElementById('email-display').value = email;
+                notify("New address ready!");
+                fetchMessages();
+                startHeartbeat();
+            } catch (err) {
+                console.error(err);
+                notify("Error creating account", true);
+            }
+        }
+
+        async function fetchMessages() {
+            if (!account) return;
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('fa-spin');
+
+            try {
+                const res = await fetchWithRetry(`${API_URL}/messages`, {
+                    headers: { 'Authorization': `Bearer ${account.token}` }
+                });
+                const data = await res.json();
+                const newMessages = data['hydra:member'];
+
+                if (newMessages.length > messages.length) {
+                    notify("New mail received!");
+                }
+
+                messages = newMessages;
+                renderInbox();
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setTimeout(() => icon.classList.remove('fa-spin'), 500);
+            }
+        }
+
+        function renderInbox() {
+            const list = document.getElementById('message-list');
+            const empty = document.getElementById('empty-state');
+
+            if (messages.length === 0) {
+                list.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            list.classList.remove('hidden');
+            
+            // Note: Updated visual classes inside template literal to match new classic premium theme
+            list.innerHTML = messages.map(msg => `
+                <div onclick="openMessage('${msg.id}')" class="p-5 border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors flex items-center justify-between group fade-in last:border-0">
+                    <div class="min-w-0 pr-4 flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-slate-800 truncate group-hover:text-blue-700 transition-colors">${msg.subject || '(No Subject)'}</div>
+                            <div class="text-sm text-slate-500 truncate mt-0.5">From: <span class="text-slate-600">${msg.from.address}</span></div>
+                        </div>
+                    </div>
+                    <div class="text-xs font-semibold text-slate-500 whitespace-nowrap bg-white border border-slate-200 px-3 py-1.5 rounded-md shadow-sm group-hover:border-blue-200 group-hover:text-blue-700 transition-colors">
+                        ${new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function openMessage(id) {
+            const modal = document.getElementById('mail-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            content.innerHTML = `<div class="flex justify-center items-center h-full min-h-[400px] bg-white"><div class="loader" style="width:40px;height:40px;border-top-color:#2563eb"></div></div>`;
+
+            try {
+                const res = await fetchWithRetry(`${API_URL}/messages/${id}`, {
+                    headers: { 'Authorization': `Bearer ${account.token}` }
+                });
+                const data = await res.json();
+
+                document.getElementById('modal-subject').innerText = data.subject || '(No Subject)';
+                document.getElementById('modal-from').innerText = data.from.address;
+
+                if (data.html && data.html.length > 0) {
+                    const iframe = document.createElement('iframe');
+                    iframe.className = "w-full h-full border-0 min-h-[500px]";
+                    content.innerHTML = "";
+                    content.appendChild(iframe);
+                    const doc = iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(`<style>body{font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;line-height:1.5;color:#1e293b;margin:0;padding:24px}img{max-width:100%;height:auto;}</style>${data.html[0]}`);
+                    doc.close();
+                } else {
+                    // Classic theme for plain text
+                    content.innerHTML = `<div class="whitespace-pre-wrap text-slate-700 text-sm p-8 bg-slate-50 min-h-[500px] border-t border-slate-100">${data.text}</div>`;
+                }
+            } catch (err) {
+                content.innerHTML = `<div class="flex items-center justify-center h-full min-h-[400px] bg-white"><p class="text-red-500 text-center flex items-center gap-2"><i class="fas fa-exclamation-triangle"></i> Failed to load secure content.</p></div>`;
+            }
+        }
+
+        // --- Utils ---
+        function startHeartbeat() {
+            if (checkInterval) clearInterval(checkInterval);
+            timer = 10;
+            checkInterval = setInterval(() => {
+                timer--;
+                if (timer <= 0) {
+                    timer = 10;
+                    fetchMessages();
+                }
+                document.getElementById('timer').innerText = timer;
+            }, 1000);
+        }
+
+        function copyToClipboard() {
+            const el = document.getElementById('email-display');
+            el.select();
+            document.execCommand('copy');
+            notify("<i class='fas fa-check-circle text-emerald-500 mr-1'></i> Copied to clipboard!");
+        }
+
+        function notify(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = msg;
+            // Updated toast styling for classic theme via JS manipulation
+            toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-sm font-medium shadow-lg transition-all duration-300 z-[100] flex items-center gap-2 ${isError ? 'bg-red-600 text-white' : 'bg-slate-800 text-white'}`;
+            toast.style.opacity = "1";
+            toast.style.transform = "translate(-50%, 0)";
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translate(-50%, 1rem)";
+            }, 3000);
+        }
+
+        function closeModal() { document.getElementById('mail-modal').classList.add('hidden'); }
+        window.onload = createNewAccount;
+    </script>
+</body>
+</html>
